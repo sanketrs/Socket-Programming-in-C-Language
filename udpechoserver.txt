@@ -1,0 +1,58 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <error.h>
+#include <string.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <sys/wait.h>
+#define MYPORT 9877 /*well know port */
+#define BACKLOG 10 /* how many pending connection queue will hold */
+#define MAXLINE 100
+void  
+dg_echo(int sockfd, struct sockaddr_in *ptheir_addr,socklen_t clilen)
+{
+     int  n,i,len;
+     char line[MAXLINE];
+for ( ; ; )
+  {
+	for(i=0;i<100;i++)
+ 		line[i]='\0';
+	  len= clilen;
+        if((n=recvfrom(sockfd,line,MAXLINE,0,ptheir_addr, &len)) ==0)
+           return;
+              sendto(sockfd,line,n,0,ptheir_addr,len);
+		printf ("client line was:  %s\n", line);
+   }
+}
+main()
+{
+int sockfd ; 
+struct sockaddr_in my_addr; /* my address */
+struct sockaddr_in their_addr; /*client address*/ 
+int clilen;
+int childpid;
+if ((sockfd = socket (AF_INET, SOCK_DGRAM ,0))==-1)
+   {
+	perror("soket");
+	exit(1);
+   }
+my_addr.sin_family= AF_INET;
+my_addr.sin_port= htons(MYPORT);
+my_addr.sin_addr.s_addr= htonl(INADDR_ANY);
+bzero(&(my_addr.sin_zero),8);
+if (bind(sockfd, (struct sockaddr *)&my_addr,sizeof(struct sockaddr)) == -1)
+	{
+	perror("bind");
+	exit(1);
+	}
+for( ; ; )
+	{
+clilen =  sizeof(their_addr);
+continue;
+	}
+	if ( ( childpid = fork() ) == 0)
+	{
+	close(sockfd);
+      dg_echo(sockfd,(struct sockaddr_in *)&their_addr, sizeof(their_addr));
+      }}}

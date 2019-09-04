@@ -1,0 +1,52 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<error.h>
+#include<string.h>
+#include<netdb.h>
+#include<sys/types.h>
+#include<netinet/in.h>
+#include<sys/socket.h>
+#include<sys/wait.h>
+#define PORT 9877 /*well know port */
+#define MAXLINE 100 /* how many pending connection queue will hold */
+void dg_cli(FILE *fp, int sockfd, const struct sockaddr_in  *myaddr, socklen_t serverlen )
+{
+ 	char sendline[MAXLINE], recvline[MAXLINE];
+	int i,n;
+	while(fgets(sendline,MAXLINE,fp) != NULL)
+	{
+		for(i=0;i<100;i++)
+ 		recvline[i]='\0';		
+		sendto(sockfd,sendline, strlen(sendline),0,pserveraddr, serverlen);
+		n=recvfrom(sockfd,recvline,MAXLINE,0,NULL,NULL)
+		recvline[n]=0;
+            fputs(recvline,stdout);
+	}
+}
+
+int main (int argc,char* argv[])
+{
+	int sockfd;
+	struct sockaddr_in their_addr;
+      struct sockaddr_in my_addr;
+if (argc != 2)
+	{
+		fprintf(stderr, "usage:udpclient <hostname>\n");
+		exit(1);
+	}
+
+if ((sockfd = socket (AF_INET, SOCK_DGRAM ,0))==-1)
+	{
+		perror("socket");
+		exit(1);
+	}
+		my_addr.sin_family= AF_INET;
+		my_addr.sin_port= htons(PORT);
+		bzero(&(my_addr.sin_zero),8);
+                inet_pton(AF_INET, argv[1], &my_addr.sin_addr);
+
+         dg_cli(stdin, sockfd, (struct sockaddr_in *)&myaddr,sizeof(myaddr));
+          exit(0);
+}
+
+
